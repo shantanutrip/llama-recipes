@@ -480,14 +480,14 @@ def format_input_multichoice(
         seq_input += "None\n"
     seq_input += (
         "What should be the next action? Please select from the following choices "
-        "(If the correct action is not in the page above, please select A. 'None of the above'):\n\n"
-        "A. None of the above\n"
+        "(If the correct action is not in the page above, please select A. 'None of the options match the correct element'):\n\n"
+        "A. None of the options match the correct element\n"
     )
     for idx, choice in enumerate(choices):
         # convert to ascii A, B, C, D, ...
         seq_input += f"{chr(66 + idx)}. {choice[1]}\n"
     if gt == -1:
-        seq_target = "A. None of the above\n"
+        seq_target = "Answer: A. None of the options match the correct element\n"
     else:
         gt += 1
         operation = json.loads(sample["operation"])
@@ -541,7 +541,6 @@ class Mind2WebDataCollator:
                 ]
                 dialogs.append(dialog)
                 images.append([image])
-                # print(dialog)
             except:
                 print("Error processing sample, skiping")
                 continue
