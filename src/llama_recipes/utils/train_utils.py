@@ -347,6 +347,9 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer, wandb
     total_eval_steps = 0
     with MemoryTrace() as memtrace:
         for step, batch in enumerate(tqdm(eval_dataloader,colour="green", desc="evaluating Epoch", dynamic_ncols=True)):
+            if not batch:
+                print(f"Skipping evaluation batch {total_eval_steps} due to None value")
+                continue
             total_eval_steps += 1
             # stop when the maximum number of eval steps is reached
             if train_config.max_eval_step > 0 and total_eval_steps > train_config.max_eval_step:
@@ -384,7 +387,7 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer, wandb
         dist.all_reduce(eval_loss, op=dist.ReduceOp.SUM)
 
     # Compute average loss and perplexity
-    eval_epoch_loss = eval_loss / len(eval_dataloader)
+    eval_epoch_loss = eval_loss / total_eval_steps
     if train_config.enable_fsdp:
         eval_epoch_loss = eval_epoch_loss/world_size
     eval_ppl = torch.exp(eval_epoch_loss)
