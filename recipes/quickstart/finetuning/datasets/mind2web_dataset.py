@@ -12,6 +12,7 @@ import random
 import json
 import copy
 import re
+from PIL import Image
 
 from lxml import etree
 
@@ -499,10 +500,22 @@ def format_input_multichoice(
     return tree_repr, seq_input, seq_target, choices
 
 class Mind2WebDataCollator:
-    def __init__(self, processor, num_candidates=10):
+    def __init__(self, processor, num_candidates=10, max_size=1120):
         self.processor = processor
         self.processor.tokenizer.padding_side = "right" # during training, one always uses padding on the right
         self.num_candidates = num_candidates
+        self.max_size = max_size
+    
+    def resize_image(self, image):
+        """Resize image to max_size while maintaining aspect ratio"""
+        width, height = image.size
+        if width > self.max_size or height > self.max_size:
+            # Calculate scaling factor
+            scale = self.max_size / max(width, height)
+            new_width = int(width * scale)
+            new_height = int(height * scale)
+            return image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        return image
     
     def __call__(self, samples):
         dialogs,images = [],[]
@@ -534,6 +547,7 @@ class Mind2WebDataCollator:
 
                 
                 image = sample["screenshot"].convert("RGB") 
+                image = self.resize_image(image)
 
                 dialog = [
                     {"role":"user","content":[{"type": "image"},{"type": "text", "text": seq_in}]},
