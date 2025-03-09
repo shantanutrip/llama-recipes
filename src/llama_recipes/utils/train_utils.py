@@ -323,6 +323,10 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
     if train_config.enable_fsdp and not train_config.use_peft and rank==0:
         save_train_params(train_config, fsdp_config, rank)
 
+    if rank == 0:
+        print("Sleeping for 10 seconds for others ranks to complete ")
+        time.sleep(10)
+
     return results
 
 def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer, wandb_run):
