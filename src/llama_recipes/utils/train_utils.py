@@ -324,8 +324,8 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
         save_train_params(train_config, fsdp_config, rank)
 
     if rank == 0:
-        print("Sleeping for 10 seconds for others ranks to complete ")
-        time.sleep(10)
+        print("Sleeping for 60 seconds for others ranks to complete ")
+        time.sleep(60)
 
     return results
 
